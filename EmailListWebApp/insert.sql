@@ -1,5 +1,5 @@
-CREATE DATABASE ig_clone;
-USE ig_clone;
+CREATE DATABASE waiting_list;
+USE waiting_list;
 
 CREATE TABLE users(
     email VARCHAR(255) PRIMARY KEY NOT NULL,
