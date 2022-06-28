@@ -1,53 +1,74 @@
 -- Total Cases vs Total Deaths (death rate) by Country
-SELECT location, date, total_cases, total_deaths, ROUND((total_deaths/total_cases) *100, 2) AS death_percentage
+SELECT 
+	location, 
+	date, 
+	total_cases, 
+	total_deaths, 
+	ROUND((total_deaths/total_cases) *100, 2) AS death_percentage
 FROM COVIDProject..CovidDeaths
 WHERE location = 'United States'
-ORDER BY 1,2
+ORDER BY 1, 2;
 
 -- Percent of population with COVID by date
-SELECT location, date, population, total_cases, ROUND((total_cases/population) *100, 2) AS percent_infected
+SELECT 
+	location, 
+	date, 
+	population, 
+	total_cases, 
+	ROUND((total_cases/population) *100, 2) AS percent_infected
 FROM COVIDProject..CovidDeaths
 WHERE location = 'United States'
-ORDER BY 1,2
+ORDER BY 1, 2;
 
 -- Percent of population with COVID ranked by country
-SELECT location, population, MAX(total_cases) AS total_cases, ROUND((MAX(total_cases/population) *100), 2) AS percent_infected
+SELECT 
+	location, 
+	population, 
+	MAX(total_cases) AS total_cases, 
+	ROUND((MAX(total_cases/population) *100), 2) AS percent_infected
 FROM COVIDProject..CovidDeaths
 WHERE continent IS NOT NULL
 GROUP BY location, population
-ORDER BY 4 DESC
+ORDER BY 4 DESC;
 
 -- Highest death count per population ranked by country
-SELECT location, population, MAX(cast(total_deaths as int)) AS total_deaths, ROUND((MAX(total_deaths/population) *100), 2) AS percent_population_deaths
-FROM COVIDProject..CovidDeaths
+SELECT 
+	location, 
+	population, 
+	MAX(cast(total_deaths as int)) AS total_deaths, 
+	ROUND((MAX(total_deaths/population) *100), 2) AS percent_population_deaths
+FROM CovidDeaths
 WHERE continent IS NOT NULL
 GROUP BY location, population
-ORDER BY 4 DESC
+ORDER BY 4 DESC;
 
 -- Highest death count per population ranked by continent
 SELECT location, population, MAX(cast(total_deaths as int)) AS total_deaths, ROUND((MAX(total_deaths/population) *100), 2) AS percent_population_deaths
-FROM COVIDProject..CovidDeaths
+FROM CovidDeaths
 WHERE continent IS NULL AND location NOT LIKE '%income%'
 GROUP BY location, population
-ORDER BY total_deaths DESC
+ORDER BY total_deaths DESC;
 
--- Comparing death rate by income
+-- Comparing death rate by income level
 SELECT location, population, MAX(cast(total_deaths as int)) AS total_deaths, ROUND((MAX(total_deaths/population) *100), 2) AS percent_population_deaths
-FROM COVIDProject..CovidDeaths
+FROM CovidDeaths
 WHERE location LIKE '%income%'
 GROUP BY location, population
-ORDER BY total_deaths DESC
-
+ORDER BY total_deaths DESC;
 
 
 -- GLOBAL NUMBERS
 
 --Daily total numbers
-SELECT date, SUM(total_cases) as total_cases, SUM(cast(total_deaths AS int)) as total_deaths, (SUM(cast(total_deaths AS int))/SUM(total_cases) *100) AS death_percentage
+SELECT 
+	date, 
+	SUM(total_cases) as total_cases, 
+	SUM(cast(total_deaths AS int)) as total_deaths,
+	(SUM(cast(total_deaths AS int))/SUM(total_cases) *100) AS death_percentage
 FROM COVIDProject..CovidDeaths
-where continent is not null
+where continent IS NOT NULL
 GROUP BY date
-ORDER BY 1
+ORDER BY 1;
 
 --Daily new numbers
 SELECT 
@@ -58,12 +79,12 @@ SELECT
 FROM COVIDProject..CovidDeaths
 where continent is not null
 GROUP BY date
-ORDER BY 1
+ORDER BY 1;
 
 
 
--- Total Population vs Vaccinations
--- USE CTE
+-- Total Vaccination Percentages by Date and Country
+-- Using CTE
 
 WITH PopVsVac (continent, location, date, population, new_vaccinations, people_fully_vaccinated, rolling_vaccinations)
 AS (SELECT
@@ -84,11 +105,11 @@ SELECT
   (rolling_vaccinations / population * 100) AS percent_with_atleast_1,
   (people_fully_vaccinated / population * 100) AS percent_fully_vaccinated
 FROM PopVsVac
-ORDER BY location, date
+ORDER BY location, date;
 
 
--- Total Population vs Vaccinations
--- USE Temp Table
+-- Total Vaccination Percentages by Date and Country
+-- Using Temp Table
 
 DROP TABLE IF EXISTS #PercentPopulationVaccinated
 CREATE TABLE #PercentPopulationVaccinated (
